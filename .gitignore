@@ -1,0 +1,25 @@
+# secrets — NEVER commit
+.env
+.env.*
+
+# OS / editor cruft
+.DS_Store
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Vercel
+.vercel/
+
+# Logs
+*.log
+
+# raw Apify dumps used for local testing
+raw/
+*.bak

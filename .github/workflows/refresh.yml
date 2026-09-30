@@ -1,0 +1,44 @@
+name: Weekly paid-ads refresh
+
+on:
+  # Mondays 01:30 UTC = 7:00 AM IST. Change the cron to pick another time.
+  schedule:
+    - cron: "30 1 * * 1"
+  workflow_dispatch:  # "Run workflow" button in the Actions tab
+
+permissions:
+  contents: write  # commit refreshed data back so Vercel redeploys
+
+concurrency:
+  group: ads-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pull Meta + Google competitor ads and rebuild dashboard
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: python3 ads_refresh.py
+
+      - name: Commit refreshed data + dashboard
+        run: |
+          git config user.name  "ads-radar-bot"
+          git config user.email "ads-radar-bot@users.noreply.github.com"
+          git add data/ads/ thumbs/ads/ index.html || true
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Paid-ads refresh: $(date -u +%Y-%m-%d)"
+            git push
+          fi

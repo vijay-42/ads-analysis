@@ -1,0 +1,139 @@
+{
+  "region": "IN",
+  "self": "sai-shishir",
+  "limits": {
+    "metaMaxAdsPerPage": 40,
+    "googleMaxAdsPerDomain": 40
+  },
+  "competitors": [
+    {
+      "id": "sai-shishir",
+      "name": "Sai Shishir Tours",
+      "domain": "saishishirtours.in",
+      "fbPage": "https://www.facebook.com/saishishirtours.in/",
+      "fbPageIds": [
+        "713649685406989"
+      ],
+      "tier": "self"
+    },
+    {
+      "id": "saishub",
+      "name": "SaiShub Tours",
+      "domain": "saishub.tours",
+      "fbPage": "https://www.facebook.com/saishubtravels/",
+      "fbPageIds": [
+        "201258626941186"
+      ],
+      "tier": "local"
+    },
+    {
+      "id": "srisaisubhayatra",
+      "name": "Sri Sai Subha Yatra",
+      "domain": "srisaisubhayatra.in",
+      "fbPage": "https://www.facebook.com/sairamsubhayatra/",
+      "fbPageIds": [
+        "1723384781230855"
+      ],
+      "tier": "local"
+    },
+    {
+      "id": "tourtripx",
+      "name": "TourTripX (Varanasi Ayodhya)",
+      "domain": "varanasiayodhya.com",
+      "fbPage": "https://www.facebook.com/TourTripX/",
+      "fbPageIds": [
+        "105757995919457"
+      ],
+      "tier": "local"
+    },
+    {
+      "id": "darshantour",
+      "name": "Darshan Tour",
+      "domain": "darshantour.com",
+      "fbPage": "",
+      "fbPageIds": [],
+      "tier": "local"
+    },
+    {
+      "id": "antriksh",
+      "name": "Antriksh Travel",
+      "domain": "antrikshtravel.com",
+      "fbPage": "",
+      "fbPageIds": [],
+      "tier": "local"
+    },
+    {
+      "id": "harivara",
+      "name": "Harivara",
+      "domain": "harivara.com",
+      "fbPage": "",
+      "fbPageIds": [],
+      "tier": "local"
+    },
+    {
+      "id": "makemytrip",
+      "name": "MakeMyTrip",
+      "domain": "makemytrip.com",
+      "fbPage": "https://www.facebook.com/makemytrip/",
+      "fbPageIds": [
+        "120740541030"
+      ],
+      "tier": "national"
+    },
+    {
+      "id": "veenaworld",
+      "name": "Veena World",
+      "domain": "veenaworld.com",
+      "fbPage": "https://www.facebook.com/VeenaWorldOfficial/",
+      "fbPageIds": [
+        "540447642679984"
+      ],
+      "instagram": "veena_world",
+      "tier": "national"
+    },
+    {
+      "id": "thomascook",
+      "name": "Thomas Cook India",
+      "domain": "thomascook.in",
+      "fbPage": "https://www.facebook.com/ThomasCookIndiaLimited/",
+      "fbPageIds": [
+        "201566449937750"
+      ],
+      "instagram": "thomascookofficial",
+      "tier": "national"
+    },
+    {
+      "id": "thrillophilia",
+      "name": "Thrillophilia",
+      "domain": "thrillophilia.com",
+      "fbPage": "https://www.facebook.com/Adventure.India.Thrillophilia/",
+      "fbPageIds": [
+        "45900680962",
+        "729970880197442"
+      ],
+      "instagram": "thrillophilia",
+      "tier": "national"
+    },
+    {
+      "id": "pickyourtrail",
+      "name": "Pickyourtrail",
+      "domain": "pickyourtrail.com",
+      "fbPage": "https://www.facebook.com/pickyourtrail",
+      "fbPageIds": [
+        "544944915602638"
+      ],
+      "instagram": "pickyourtrail",
+      "tier": "national"
+    },
+    {
+      "id": "captureatrip",
+      "name": "Capture A Trip",
+      "domain": "captureatrip.com",
+      "fbPage": "",
+      "fbPageIds": [],
+      "instagram": "capture.a.trip",
+      "tier": "national"
+    }
+  ],
+  "_help": "tier: self | local | national. fbPageIds: numeric Facebook page IDs (from any of their ads in the Meta Ad Library). Leave empty if they don't run Meta ads."
+}
