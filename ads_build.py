@@ -164,7 +164,7 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   <div class="card scroll"><table id="trans"></table></div>
 
   <h2>Ad mix: where, how and in what language they advertise</h2>
-  <p class="sub">Share of each advertiser's live Meta ads. Placements are the Meta apps an ad runs on. Lead capture is what the ad's button does.</p>
+  <p class="sub">Share of each advertiser's live Meta ads. Placements are the Meta apps an ad runs on. Lead capture is what the ad's button does. Language is read from the script, so Kannada written in English letters counts as English.</p>
   <div class="filters"><div class="seg" id="mixSeg">
     <button data-v="placements" class="on">Placements</button><button data-v="lead">Lead capture</button><button data-v="lang">Language</button><button data-v="format">Creative format</button><button data-v="duration">Trip length</button>
   </div></div>
@@ -324,12 +324,15 @@ $("#trans").innerHTML = `<thead><tr><th>Advertiser</th><th>Business behind the p
 // ── Ad mix ──
 const MIXK = {
   placements: a => (a.placements||[]).map(p => ({FACEBOOK:"Facebook",INSTAGRAM:"Instagram",MESSENGER:"Messenger",WHATSAPP:"WhatsApp",THREADS:"Threads",AUDIENCE_NETWORK:"Audience Network"}[p] || p)),
-  lead: a => [a.lead || "Other"], lang: a => [a.lang || "—"], format: a => [a.format], duration: a => a.duration ? [a.duration] : [],
+  lead: a => [a.lead || "Other"], lang: a => (a.lang || "—").split(" + "), format: a => [a.format], duration: a => a.duration ? [a.duration] : [],
 };
+// languages that always get a row (key markets), even when no ad uses them yet
+const PIN = { lang: ["English", "Kannada", "Hindi/Marathi", "Telugu", "Tamil"] };
 function drawMix(kind){
   const mAds = ads.filter(a => a.src === "meta"), mc = comps.filter(c => mAds.some(a => a.comp === c.id));
   const cnt = {}; mAds.forEach(a => MIXK[kind](a).forEach(k => cnt[k] = (cnt[k]||0)+1));
-  const keys = Object.keys(cnt).sort((a,b) => cnt[b]-cnt[a]).slice(0, 12);
+  const pinned = PIN[kind] || [];
+  const keys = [...pinned, ...Object.keys(cnt).filter(k => !pinned.includes(k)).sort((a,b) => cnt[b]-cnt[a])].slice(0, 12);
   $("#mix").innerHTML = keys.length ? `<thead><tr><th>${{placements:"Placement",lead:"Lead capture",lang:"Language",format:"Format",duration:"Trip length"}[kind]}</th>${mc.map(c=>`<th>${esc(c.name.split(" (")[0])}</th>`).join("")}</tr></thead><tbody>` +
     keys.map(k => `<tr><td><strong>${esc(k)}</strong></td>${mc.map(c => { const tot = mAds.filter(a=>a.comp===c.id).length || 1;
       const n = mAds.filter(a => a.comp===c.id && MIXK[kind](a).includes(k)).length, pct = Math.round(n/tot*100), s = n ? Math.min(4, 1 + Math.floor(pct/25)) : 0;

@@ -60,9 +60,18 @@ DESTINATIONS = {
     "Kerala": ["kerala", "munnar", "alleppey", "guruvayur"],
     "Andaman": ["andaman", "port blair", "havelock"],
     "Kamakhya / North East": ["kamakhya", "guwahati", "meghalaya", "shillong", "tawang", "sikkim", "darjeeling"],
-    "Himachal / Ladakh": ["manali", "shimla", "ladakh", "leh"],
+    "Himachal / Ladakh": ["manali", "shimla", "ladakh", "leh "],
+    "Maharashtra temples": ["ashtavinayak", "pandharpur", "shani shingnapur", "shingnapur", "trimbakeshwar",
+                            "bhimashankar", "kolhapur", "tuljapur", "grishneshwar", "jejuri"],
+    "Karnataka / coastal temples": ["dharmasthala", "kukke", "sringeri", "udupi", "murudeshwar", "gokarna",
+                                    "horanadu", "kollur", "hampi", "mysore", "coorg", "chikmagalur"],
+    "Rajasthan": ["rajasthan", "jaipur", "udaipur", "jodhpur", "jaisalmer", "pushkar", "ajmer", "nathdwara", "shrinathji"],
+    "Delhi / Agra / Vrindavan": ["vrindavan", "mathura", "agra", "taj mahal", "haridwar", "rishikesh"],
+    "Goa": ["goa"],
     "International": ["dubai", "bali", "thailand", "vietnam", "singapore", "malaysia", "europe", "sri lanka",
-                      "maldives", "japan", "turkey", "kazakhstan", "bhutan", "mauritius", "international"],
+                      "maldives", "japan", "turkey", "kazakhstan", "bhutan", "mauritius", "international",
+                      "kenya", "new zealand", "greece", "santorini", "australia", "egypt", "uzbekistan",
+                      "almaty", "baku", "azerbaijan", "hong kong", "macau", "china", "switzerland", "paris", "london"],
 }
 
 
@@ -120,10 +129,14 @@ def run_actor(actor, body, label, max_wait=900):
 
 # ───────────────────────── normalise ─────────────────────────
 
+# words that contain a destination keyword but mean something else
+_NOT_DEST = {"dwarka": r"(?!mai)"}   # Dwarkamai is a mosque in Shirdi, not Dwarka (Gujarat)
+
+
 def tag_destinations(*texts):
     blob = " ".join(t for t in texts if t).lower()
     return [label for label, kws in DESTINATIONS.items()
-            if any(re.search(r"\b" + re.escape(k), blob) for k in kws)]
+            if any(re.search(r"\b" + re.escape(k) + _NOT_DEST.get(k, ""), blob) for k in kws)]
 
 
 def _page_key(url):
@@ -185,10 +198,18 @@ _PRICE = re.compile(r"(?:₹|rs\.?|inr)\s*([0-9][0-9,]{2,}(?:\.\d+)?)\s*(k|/-)?"
 
 
 def extract_prices(*texts):
-    """₹ amounts mentioned in the ad copy -> sorted unique ints."""
+    """₹ package prices mentioned in the ad copy -> sorted unique ints.
+    Discounts ("₹2000 off", "up to ₹12,000 discount") and struck-out
+    "worth ₹X" prices are skipped."""
     found = set()
     for t in texts:
-        for m in _PRICE.finditer(t or ""):
+        t = t or ""
+        for m in _PRICE.finditer(t):
+            before = t[max(0, m.start() - 14):m.start()].lower()
+            after = t[m.end():m.end() + 16].lower()
+            if re.search(r"\b(off|discount|cashback|instant|savings?)\b", after) or \
+               re.search(r"(up to|upto|save|worth|flat off|get)\s*$", before):
+                continue
             try:
                 v = float(m.group(1).replace(",", ""))
                 if (m.group(2) or "").lower() == "k":
@@ -203,11 +224,19 @@ def extract_prices(*texts):
 def nights_days(*texts):
     blob = " ".join(t or "" for t in texts)
     sep = r"\s*(?:[/&|,+-]|and)?\s*"
-    m = re.search(r"(\d{1,2})\s*n(?:ights?)?" + sep + r"(\d{1,2})\s*d(?:ays?)?", blob, re.I)
+    m = re.search(r"(\d{1,2})\s*n(?:ights?)?" + sep + r"(\d{1,2})\s*d(?:ays?)?\b", blob, re.I)
     if m:
         return f"{m.group(1)}N/{m.group(2)}D"
-    m = re.search(r"(\d{1,2})\s*d(?:ays?)?" + sep + r"(\d{1,2})\s*n(?:ights?)?", blob, re.I)
-    return f"{m.group(2)}N/{m.group(1)}D" if m else ""
+    m = re.search(r"(\d{1,2})\s*d(?:ays?)?" + sep + r"(\d{1,2})\s*n(?:ights?)?\b", blob, re.I)
+    if m:
+        return f"{m.group(2)}N/{m.group(1)}D"
+    m = re.search(r"\b(\d{1,2})\s*(?:n\b|nights?\b)", blob, re.I)   # "4 Nights", "6N"
+    if m and 0 < int(m.group(1)) <= 30:
+        return f"{m.group(1)}N/{int(m.group(1)) + 1}D"
+    m = re.search(r"\b(\d{1,2})\s*days?\b", blob, re.I)           # "(2 Days)"
+    if m and 1 < int(m.group(1)) <= 30:
+        return f"{int(m.group(1)) - 1}N/{m.group(1)}D"
+    return ""
 
 
 def lead_type(cta_type, cta_text, link):
@@ -222,7 +251,7 @@ def lead_type(cta_type, cta_text, link):
         return "App install"
     if "message" in t or "messenger" in t:
         return "Messenger"
-    return "Website" if link else "Other"
+    return "Website" if link else "No button (awareness)"
 
 
 def _ts_full(v):
